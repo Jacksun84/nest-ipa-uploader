@@ -44,3 +44,6 @@ lerna-debug.log*
 *.p12
 *.cer
 *.mobileprovision
+
+#Artifacts/assets
+/artifacts
