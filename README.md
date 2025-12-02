@@ -57,24 +57,20 @@ npm run cli -- upload --file path/to/your.ipa --bundle-id your.bundle.id --type 
 🐛 Troubleshooting
 Error: "Failed to create build"
 Possible causes:
-
 Build with this version already exists
 App Store Connect API key doesn't have proper permissions
 
 Solution:
-
 Ensure your API key has "Admin" or "App Manager" role
 Check if build already exists: npm run cli -- list-builds --bundle-id your.bundle.id
 
 Error: "Cannot load private key"
-
-Solution on Windows:
+Solution on Windows - Make sure path uses forward slashes or escaped backslashes
 bash
-### Make sure path uses forward slashes or escaped backslashes
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/Bruno/keys/AuthKey_ABC123.p8
+
 Error: "Info.plist not found in IPA"
 Solution:
-
 Verify your IPA is valid
 Test: npm run cli -- metadata --file your.ipa
 
