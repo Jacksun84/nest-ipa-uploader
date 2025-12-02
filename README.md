@@ -5,7 +5,11 @@ The Tool uses the App Store Connect Upload API which works on Windows, Linux, an
 
 ⚡ Quick Setup
 1. Install dependecies
-bash 
+Nodejs is required, check the version of node, should work with version v24.4.1
+bash<br>
+node -v<br>
+
+bash<br> 
 npm install
 
 2. Update Your .env File
@@ -70,7 +74,7 @@ Check if build already exists: npm run cli -- list-builds --bundle-id your.bundl
 Error: "Cannot load private key"
 Solution on Windows - Make sure path uses forward slashes or escaped backslashes
 bash
-APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/Bruno/keys/AuthKey_ABC123.p8
+APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/<username>/keys/AuthKey_ABC123.p8
 
 Error: "Info.plist not found in IPA"
 Solution:

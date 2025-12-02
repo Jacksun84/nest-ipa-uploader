@@ -122,6 +122,8 @@ program
       const authService = app.get(AppStoreConnectAuthService);
       await authService.initialize();
 
+      spinner.succeed(chalk.gray(`Generated Token: ${authService.generateToken()}\n`));
+
       const apiService = app.get(AppStoreConnectApiService);
       const apps = await apiService.getApps();
 
