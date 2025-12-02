@@ -5,7 +5,7 @@ The Tool uses the App Store Connect Upload API which works on Windows, Linux, an
 
 ⚡ Quick Setup
 1. Install dependecies
-Nodejs is required, check the version of node, should work with version v24.4.1
+Nodejs is required, check the version of node, should work with version v24.4.1<br>
 bash<br>
 node -v<br>
 
