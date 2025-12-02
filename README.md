@@ -13,12 +13,12 @@ Your .env should only have:
 bashAPP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8
+
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
 bash# Good
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/YourName/keys/AuthKey_XXXXXXXXXX.p8
 # or
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX.p8
-
 # Bad
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 
@@ -27,26 +27,20 @@ bashnpm run build
 
 4. Test the Upload
 bashnpm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.nordicplatforms.demo.SapphireCare --type testflight
+
 🔍 How It Works Now
 Old Method (macOS only):
 Windows → ❌ xcrun altool → Apple
 New Method (Cross-platform):
 Windows/Mac/Linux → ✅ App Store Connect API → AWS S3 → Apple
-The upload process:
 
+
+The upload process:
 Extract IPA metadata (using adm-zip - works on Windows)
 Create build record in App Store Connect
 Create upload session and get AWS S3 URLs
 Upload IPA chunks directly to Apple's AWS storage
 Commit upload to finalize
-
-📋 Complete File Changes Checklist
-Files to Update:
-
- package.json - Add adm-zip dependency
- src/services/ipa-uploader.service.ts - Complete rewrite with API upload
- src/cli.ts - Remove Apple ID requirement
- .env - Remove APPLE_ID and APP_SPECIFIC_PASSWORD
 
 Commands to Run:
 bash
@@ -58,6 +52,7 @@ npm run build
 
 # 3. Test
 npm run cli -- upload --file path/to/your.ipa --bundle-id your.bundle.id --type testflight
+
 🐛 Troubleshooting
 Error: "Failed to create build"
 Possible causes:
@@ -72,7 +67,8 @@ Check if build already exists: npm run cli -- list-builds --bundle-id your.bundl
 
 Error: "Cannot load private key"
 Solution on Windows:
-bash# Make sure path uses forward slashes or escaped backslashes
+bash
+# Make sure path uses forward slashes or escaped backslashes
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/Bruno/keys/AuthKey_ABC123.p8
 Error: "Info.plist not found in IPA"
 Solution:
@@ -111,9 +107,12 @@ When upload succeeds, you'll see:
 🚀 Advanced Usage
 Upload Without Waiting
 Skip the build processing check (faster):
-bashnpm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --skip-wait
+bash
+npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --skip-wait
+
 Add to Beta Group Automatically
-bash# First, get your beta group ID
+bash
+# First, get your beta group ID
 npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
 # Then upload with beta group
