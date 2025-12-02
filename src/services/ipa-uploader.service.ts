@@ -69,6 +69,10 @@ export class IpaUploaderService {
       this.logger.log(`Platform: ${process.platform}`);
       this.logger.log(`Build type: ${options.buildType}`);
 
+      console.log(`Starting cross-platform IPA upload for bundle: ${options.bundleId}`);
+      console.log(`Platform: ${process.platform}`);
+      console.log(`Build type: ${options.buildType}`);
+
       // Get app from App Store Connect
       const app = await this.apiService.getAppByBundleId(options.bundleId);
       if (!app) {
@@ -81,15 +85,23 @@ export class IpaUploaderService {
       const metadata = await this.getIpaMetadata(options.ipaPath);
       this.logger.log(`IPA Version: ${metadata.version}, Build: ${metadata.buildNumber}`);
 
+      console.log(`Found app: ${app.attributes.name} (${app.id})`);
+      console.log(`IPA Version: ${metadata.version}, Build: ${metadata.buildNumber}`);
+
       // Upload using App Store Connect API (cross-platform)
       await this.uploadUsingAppStoreConnectApi(options, app.id, metadata);
 
       if (!options.skipWaitingForBuild) {
         this.logger.log('Waiting for build to be processed...');
+       
+        console.log('Waiting for build to be processed...');
+
         const build = await this.waitForBuildProcessing(app.id, metadata.version, 60, 10000);
         
         if (build) {
           this.logger.log(`Build processed: ${build.id} (${build.attributes.version})`);
+
+          console.log(`Build processed: ${build.id} (${build.attributes.version})`);
 
           if (options.buildType === BuildType.TESTFLIGHT && options.betaGroupId) {
             await this.apiService.addBuildToBetaGroup(build.id, options.betaGroupId);
@@ -134,10 +146,15 @@ export class IpaUploaderService {
       this.logger.log(`File: ${fileName}`);
       this.logger.log(`Size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
 
+      console.log(`File: ${fileName}`);
+      console.log(`Size: ${(fileSize / 1024 / 1024).toFixed(2)} MB`);
+
       // Step 1: Calculate MD5 checksum
       this.logger.log('Step 1/5: Calculating file checksum...');
       const md5Checksum = await this.calculateMD5(options.ipaPath);
       this.logger.log(`MD5: ${md5Checksum}`);
+
+      console.log(`MD5: ${md5Checksum}`);
 
       // Step 2: Create a Build
       this.logger.log('Step 2/5: Creating build record...');
@@ -157,17 +174,23 @@ export class IpaUploaderService {
 
       // Step 4: Upload file chunks to AWS
       this.logger.log('Step 4/5: Uploading file to Apple servers...');
+      console.log('Step 4/5: Uploading file to Apple servers...');
       await this.uploadFileChunks(options.ipaPath, uploadSession);
 
       // Step 5: Commit the upload
       this.logger.log('Step 5/5: Finalizing upload...');
+      console.log('Step 5/5: Finalizing upload...');
       await this.commitBuildUpload(uploadSession.id, md5Checksum);
 
       this.logger.log('✓ IPA uploaded successfully!');
+      console.log('✓ IPA uploaded successfully!');
+      
     } catch (error) {
       this.logger.error('API upload failed:', error.message);
+      console.error('API upload failed:', error.message);
       if (error.response?.data) {
         this.logger.error('Response:', JSON.stringify(error.response.data, null, 2));
+        console.error('Response:', JSON.stringify(error.response.data, null, 2));
       }
       throw new Error(`Failed to upload IPA: ${error.message}`);
     }
