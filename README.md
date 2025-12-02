@@ -1,6 +1,7 @@
-Windows Setup Guide - Cross-Platform IPA Upload
-🎯 Integrations?
-The Tool uses the App Store Connect Upload API which works on Windows, Linux, and macOS without needing xcrun, Xcode, or any Apple-specific tools!
+Windows Setup Guide - Cross-Platform IPA Upload<br>
+
+🎯 Integrations?<br>
+The Tool uses the App Store Connect Upload API which works on Windows, Linux, and macOS without needing xcrun, Xcode, or any Apple-specific tools!<br>
 
 ⚡ Quick Setup
 1. Install the New Dependency
@@ -8,11 +9,13 @@ bash
 npm install adm-zip@^0.5.10
 
 2. Update Your .env File
-You NO LONGER NEED APPLE_ID and APP_SPECIFIC_PASSWORD!
-Your .env should only have:
-bashAPP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX
-APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8
+
+You NO LONGER NEED APPLE_ID and APP_SPECIFIC_PASSWORD!<br>
+Your .env should only have:<br>
+bash<br>
+APP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx<br>
+APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX<br>
+APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8<br>
 
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
 bash# Good
