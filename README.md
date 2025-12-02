@@ -8,8 +8,6 @@ The Tool uses the App Store Connect Upload API which works on Windows, Linux, an
 Nodejs is required, check the version of node, should work with version v24.4.1<br>
 bash<br>
 node -v<br>
-
-bash<br> 
 npm install
 
 2. Update Your .env File
