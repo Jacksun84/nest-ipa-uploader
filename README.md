@@ -4,9 +4,9 @@ Windows Setup Guide - Cross-Platform IPA Upload<br>
 The Tool uses the App Store Connect Upload API which works on Windows, Linux, and macOS without needing xcrun, Xcode, or any Apple-specific tools!<br>
 
 ⚡ Quick Setup
-1. Install the New Dependency
+1. Install dependecies
 bash 
-npm install adm-zip@^0.5.10
+npm install
 
 2. Update Your .env File
 
@@ -18,7 +18,8 @@ APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX<br>
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8<br>
 
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
-bash# Good
+bash
+### Good
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/YourName/keys/AuthKey_XXXXXXXXXX.p8
 ### or
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX.p8
@@ -26,10 +27,12 @@ APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 
 3. Rebuild the Project
-bashnpm run build
+bash<br>
+npm run build
 
 4. Test the Upload
-bashnpm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.nordicplatforms.demo.SapphireCare --type testflight
+bash<br>
+npm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.nordicplatforms.demo.SapphireCare --type testflight
 
 🔍 How It Works (Cross-platform):
 Windows/Mac/Linux<br> 
