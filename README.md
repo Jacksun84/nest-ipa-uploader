@@ -116,6 +116,8 @@ bash
 ## First, get your beta group ID
 npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
+![List Tests Groups](/assets/list-beta-groups.png)
+
 ## Then upload with beta group
 npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --beta-group YOUR_BETA_GROUP_ID<br>
 📝 API Key Setup Reminder<br>
@@ -137,6 +139,8 @@ bash
 
 ### 1. Test credentials
 npm run cli -- list-apps
+
+![List Apps example](/assets/list-apps.png)
 
 ### 2. Test IPA metadata extraction
 npm run cli -- metadata --file your.ipa
