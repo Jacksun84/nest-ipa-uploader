@@ -17,9 +17,9 @@ APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
 bash# Good
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/YourName/keys/AuthKey_XXXXXXXXXX.p8
-# or
+### or
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX.p8
-# Bad
+### Bad
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 
 3. Rebuild the Project
@@ -28,12 +28,8 @@ bashnpm run build
 4. Test the Upload
 bashnpm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.nordicplatforms.demo.SapphireCare --type testflight
 
-🔍 How It Works Now
-Old Method (macOS only):
-Windows → ❌ xcrun altool → Apple
-New Method (Cross-platform):
+🔍 How It Works (Cross-platform):
 Windows/Mac/Linux → ✅ App Store Connect API → AWS S3 → Apple
-
 
 The upload process:
 Extract IPA metadata (using adm-zip - works on Windows)
@@ -53,6 +49,7 @@ npm run build
 # 3. Test
 npm run cli -- upload --file path/to/your.ipa --bundle-id your.bundle.id --type testflight
 
+
 🐛 Troubleshooting
 Error: "Failed to create build"
 Possible causes:
@@ -66,9 +63,10 @@ Ensure your API key has "Admin" or "App Manager" role
 Check if build already exists: npm run cli -- list-builds --bundle-id your.bundle.id
 
 Error: "Cannot load private key"
+
 Solution on Windows:
 bash
-# Make sure path uses forward slashes or escaped backslashes
+### Make sure path uses forward slashes or escaped backslashes
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/Bruno/keys/AuthKey_ABC123.p8
 Error: "Info.plist not found in IPA"
 Solution:
@@ -83,39 +81,40 @@ Each chunk is uploaded separately to AWS S3
 You'll see progress: "Uploading chunk 1/10... Progress: 10%"
 Large IPA files (100MB+) can take 5-10 minutes
 
-🎉 Success Indicators
-When upload succeeds, you'll see:
-✔ Initializing...
-✔ Starting upload...
-  Step 1/5: Calculating file checksum...
-  MD5: abc123...
-  Step 2/5: Creating build record...
-  Step 3/5: Creating upload session...
-  Step 4/5: Uploading file to Apple servers...
-  Uploading chunk 1/5...
-  Progress: 20.0%
-  Uploading chunk 2/5...
-  Progress: 40.0%
-  ...
-  Step 5/5: Finalizing upload...
-  ✓ IPA uploaded successfully!
-✔ Upload completed successfully!
+🎉 Success Indicators<br>
+When upload succeeds, you'll see:<br>
+✔ Initializing...<br>
+✔ Starting upload...<br>
+  Step 1/5: Calculating file checksum...<br>
+  MD5: abc123...<br>
+  Step 2/5: Creating build record...<br>
+  Step 3/5: Creating upload session...<br>
+  Step 4/5: Uploading file to Apple servers...<br>
+  Uploading chunk 1/5...<br>
+  Progress: 20.0%<br>
+  Uploading chunk 2/5...<br>
+  Progress: 40.0%<br>
+  ...<br>
+  Step 5/5: Finalizing upload...<br>
+  ✓ IPA uploaded successfully!<br>
+✔ Upload completed successfully!<br>
 
-  Build ID: abc-123-def
-  Version: 1.0.0
-  Processing State: PROCESSING
-🚀 Advanced Usage
-Upload Without Waiting
-Skip the build processing check (faster):
-bash
+  Build ID: abc-123-def<br>
+  Version: 1.0.0<br>
+  Processing State: PROCESSING<br>
+
+🚀 Advanced Usage<br>
+Upload Without Waiting<br>
+Skip the build processing check (faster):<br>
+bash<br>
 npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --skip-wait
 
-Add to Beta Group Automatically
+#Add to Beta Group Automatically
 bash
-# First, get your beta group ID
+## First, get your beta group ID
 npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
-# Then upload with beta group
+## Then upload with beta group
 npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --beta-group YOUR_BETA_GROUP_ID
 📝 API Key Setup Reminder
 If you haven't set up your App Store Connect API key yet:
@@ -133,13 +132,13 @@ Put the .p8 file somewhere safe on your Windows machine and update your .env fil
 ✅ Verification
 Test that everything works:
 bash
-# 1. Test credentials
+### 1. Test credentials
 npm run cli -- list-apps
 
-# 2. Test IPA metadata extraction
+### 2. Test IPA metadata extraction
 npm run cli -- metadata --file your.ipa
 
-# 3. Test upload
+### 3. Test upload
 npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight
 
 You're all set! Your tool now works on Windows! 🎊
