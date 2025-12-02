@@ -29,14 +29,15 @@ bashnpm run build
 bashnpm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.nordicplatforms.demo.SapphireCare --type testflight
 
 🔍 How It Works (Cross-platform):
-Windows/Mac/Linux → ✅ App Store Connect API → AWS S3 → Apple
+Windows/Mac/Linux<br> 
+✅ App Store Connect API → AWS S3 → Apple
 
-The upload process:
-Extract IPA metadata (using adm-zip - works on Windows)
-Create build record in App Store Connect
-Create upload session and get AWS S3 URLs
-Upload IPA chunks directly to Apple's AWS storage
-Commit upload to finalize
+The upload process:<br>
+Extract IPA metadata (using adm-zip - works on Windows)<br>
+Create build record in App Store Connect<br>
+Create upload session and get AWS S3 URLs<br>
+Upload IPA chunks directly to Apple's AWS storage<br>
+Commit upload to finalize<br>
 
 Commands to Run:
 bash
@@ -103,8 +104,7 @@ When upload succeeds, you'll see:<br>
   Version: 1.0.0<br>
   Processing State: PROCESSING<br>
 
-🚀 Advanced Usage<br>
-Upload Without Waiting<br>
+🚀 Advanced Usage - Upload Without Waiting<br>
 Skip the build processing check (faster):<br>
 bash<br>
 npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --skip-wait
@@ -115,23 +115,24 @@ bash
 npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
 ## Then upload with beta group
-npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --beta-group YOUR_BETA_GROUP_ID
-📝 API Key Setup Reminder
-If you haven't set up your App Store Connect API key yet:
+npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --beta-group YOUR_BETA_GROUP_ID<br>
+📝 API Key Setup Reminder<br>
+If you haven't set up your App Store Connect API key yet:<br>
 
-Go to App Store Connect
-Click Users and Access → Keys tab
-Click "+" to generate a new key
-Name it (e.g., "IPA Uploader")
-Select "Admin" access (or at least "App Manager")
-Click Generate
-Download the .p8 file (you can only do this once!)
-Copy the Key ID and Issuer ID
+Go to App Store Connect<br>
+Click Users and Access → Keys tab<br>
+Click "+" to generate a new key<br>
+Name it (e.g., "IPA Uploader")<br>
+Select "Admin" access (or at least "App Manager")<br>
+Click Generate<br>
+Download the .p8 file (you can only do this once!)<br>
+Copy the Key ID and Issuer ID<br>
 
-Put the .p8 file somewhere safe on your Windows machine and update your .env file with the correct path.
-✅ Verification
-Test that everything works:
+Put the .p8 file somewhere safe on your Windows machine and update your .env file with the correct path.<br>
+✅ Verification<br>
+Test that everything works:<br>
 bash
+
 ### 1. Test credentials
 npm run cli -- list-apps
 
