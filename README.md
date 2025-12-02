@@ -18,11 +18,11 @@ APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8<br>
 
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
 bash
-### Good
+**Good**
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/YourName/keys/AuthKey_XXXXXXXXXX.p8
-### or
+**or**
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX.p8
-### Bad
+**Bad**
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 
 3. Rebuild the Project
