@@ -157,6 +157,6 @@ npm run cli -- analyze -f your.bundle.id
 npm run cli -- upload -file your.ipa --bundle-id your.bundle.id --type testflight
 
 ### 7. Upload IPA file (WIP)
-npm run cli -- multipart-upload -f your.ipa -a bundle-id --short-version 3.31 --build-version 108
+npm run cli -- multipart-upload -f your.ipa -b bundle-id --short-version build.version.number --build-version build.version.code
 
 You're all set! Your tool now works on Windows! 🎊
