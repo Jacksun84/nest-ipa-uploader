@@ -466,6 +466,7 @@ program
     }
   });
 
+  /*
 program
   .command('metadata')
   .description('Extract metadata from IPA file')
@@ -500,6 +501,231 @@ program
       await app.close();
     } catch (error) {
       spinner.fail(chalk.red('Failed to read metadata'));
+      console.error(chalk.red('\nError:'), error.message);
+      process.exit(1);
+    }
+  });
+
+  */
+
+  program
+  .command('metadata')
+  .description('Extract metadata from IPA file')
+  .requiredOption('-f, --file <path>', 'Path to IPA file')
+  .action(async (options) => {
+    const spinner = ora('Reading IPA metadata...').start();
+
+    try {
+      // Parse IPA file directly - no service needed
+      const AdmZip = require('adm-zip');
+      const zip = new AdmZip(options.file);
+      const zipEntries = zip.getEntries();
+
+      // Find Info.plist
+      const plistEntry = zipEntries.find((entry: any) => 
+        entry.entryName.match(/Payload\/[^\/]+\.app\/Info\.plist$/)
+      );
+
+      if (!plistEntry) {
+        spinner.fail(chalk.red('Info.plist not found in IPA'));
+        console.error(chalk.yellow('\nThis may not be a valid IPA file.'));
+        process.exit(1);
+      }
+
+      const plistContent = plistEntry.getData().toString('utf8');
+
+      // Parse plist helper function
+      const parseValue = (content: string, key: string): string => {
+        const regex = new RegExp(
+          `<key>${key}</key>\\s*<string>([^<]+)</string>`,
+          'i'
+        );
+        const match = content.match(regex);
+        return match ? match[1] : 'unknown';
+      };
+
+      // Extract metadata
+      const metadata = {
+        bundleId: parseValue(plistContent, 'CFBundleIdentifier'),
+        version: parseValue(plistContent, 'CFBundleShortVersionString'),
+        buildNumber: parseValue(plistContent, 'CFBundleVersion'),
+        displayName: parseValue(plistContent, 'CFBundleDisplayName') || 
+                     parseValue(plistContent, 'CFBundleName'),
+        bundleName: parseValue(plistContent, 'CFBundleName'),
+        executable: parseValue(plistContent, 'CFBundleExecutable'),
+        minOSVersion: parseValue(plistContent, 'MinimumOSVersion'),
+      };
+
+      spinner.succeed(chalk.green('Metadata extracted successfully'));
+
+      console.log('\n');
+      console.log(chalk.bold('IPA Metadata:'));
+      console.log(chalk.cyan('  Bundle ID:'), metadata.bundleId);
+      console.log(chalk.cyan('  Version:'), metadata.version);
+      console.log(chalk.cyan('  Build Number:'), metadata.buildNumber);
+      console.log(chalk.cyan('  Display Name:'), metadata.displayName);
+      console.log(chalk.cyan('  Bundle Name:'), metadata.bundleName);
+      console.log(chalk.cyan('  Executable:'), metadata.executable);
+      console.log(chalk.cyan('  Min iOS Version:'), metadata.minOSVersion);
+      console.log('');
+
+    } catch (error) {
+      spinner.fail(chalk.red('Failed to read metadata'));
+      console.error(chalk.red('\nError:'), error.message);
+      if (error.code === 'ENOENT') {
+        console.error(chalk.yellow('\nFile not found. Please check the path.'));
+      }
+      process.exit(1);
+    }
+  });
+
+  program
+  .command('analyze-poc-tmp')
+  .description('Analyze IPA build type (App Store, Ad-Hoc, Enterprise, Development)')
+  .requiredOption('-f, --file <path>', 'Path to IPA file')
+  .action(async (options) => {
+    const spinner = ora('Analyzing IPA...').start();
+
+    try {
+      // No need for API credentials to analyze IPA
+      const AdmZip = require('adm-zip');
+      const zip = new AdmZip(options.file);
+      const entries = zip.getEntries();
+
+      // Find embedded.mobileprovision
+      const provisionEntry = entries.find((entry: any) =>
+        entry.entryName.match(/Payload\/[^\/]+\.app\/embedded\.mobileprovision$/)
+      );
+
+      if (!provisionEntry) {
+        spinner.fail(chalk.red('No provisioning profile found in IPA'));
+        console.error(chalk.yellow('\nThis may not be a valid IPA file.'));
+        process.exit(1);
+      }
+
+      const provisionContent = provisionEntry.getData().toString('utf8');
+
+      // Parse provisioning profile - all helper functions inline
+      const getProvisionedDevices = (): string[] => {
+        const devicesMatch = provisionContent.match(
+          /<key>ProvisionedDevices<\/key>\s*<array>([\s\S]*?)<\/array>/
+        );
+        if (!devicesMatch) return [];
+
+        const devices = devicesMatch[1].match(/<string>([^<]+)<\/string>/g) || [];
+        return devices.map(d => d.replace(/<\/?string>/g, ''));
+      };
+
+      const getExpirationDate = (): Date | undefined => {
+        const expMatch = provisionContent.match(
+          /<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/
+        );
+        return expMatch ? new Date(expMatch[1]) : undefined;
+      };
+
+      const getTeamId = (): string | undefined => {
+        const teamMatch = provisionContent.match(
+          /<key>TeamIdentifier<\/key>\s*<array>\s*<string>([^<]+)<\/string>/
+        );
+        return teamMatch ? teamMatch[1] : undefined;
+      };
+
+      const getProfileName = (): string | undefined => {
+        const nameMatch = provisionContent.match(
+          /<key>Name<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        return nameMatch ? nameMatch[1] : undefined;
+      };
+
+      const determineBuildType = (): 'adhoc' | 'enterprise' | 'development' | 'appstore' => {
+        // Check for get-task-allow (development)
+        if (provisionContent.includes('<key>get-task-allow</key>')) {
+          return 'development';
+        }
+
+        // Check for provisioned devices (ad-hoc)
+        const devices = getProvisionedDevices();
+        if (devices.length > 0) {
+          return 'adhoc';
+        }
+
+        // Check for enterprise (ProvisionsAllDevices)
+        if (provisionContent.includes('<key>ProvisionsAllDevices</key>')) {
+          return 'enterprise';
+        }
+
+        return 'appstore';
+      };
+
+      // Extract all information
+      const buildType = determineBuildType();
+      const devices = getProvisionedDevices();
+      const expirationDate = getExpirationDate();
+      const teamId = getTeamId();
+      const profileName = getProfileName();
+
+      spinner.succeed(chalk.green('IPA analyzed successfully'));
+
+      // Display results
+      console.log('\n');
+      console.log(chalk.bold('Build Information:'));
+      console.log(chalk.cyan('  Build Type:'), buildType.toUpperCase());
+      console.log(chalk.cyan('  Authorized Devices:'), devices.length);
+      
+      if (expirationDate) {
+        const daysUntilExpiry = Math.ceil(
+          (expirationDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        );
+        console.log(chalk.cyan('  Expiration:'), expirationDate.toLocaleDateString());
+        
+        if (daysUntilExpiry < 0) {
+          console.log(chalk.cyan('  Days Remaining:'), chalk.red(`EXPIRED ${Math.abs(daysUntilExpiry)} days ago`));
+        } else if (daysUntilExpiry < 30) {
+          console.log(chalk.cyan('  Days Remaining:'), chalk.yellow(daysUntilExpiry));
+        } else {
+          console.log(chalk.cyan('  Days Remaining:'), daysUntilExpiry);
+        }
+      }
+      
+      if (teamId) {
+        console.log(chalk.cyan('  Team ID:'), teamId);
+      }
+      
+      if (profileName) {
+        console.log(chalk.cyan('  Profile Name:'), profileName);
+      }
+      
+      console.log('');
+
+      // Provide recommendations based on build type
+      if (buildType === 'appstore') {
+        console.log(chalk.green('✓ This is an App Store build - use the "upload" command'));
+        console.log(chalk.gray('  Command: npm run cli -- upload --file <ipa> --bundle-id <id> --type testflight'));
+      } else if (buildType === 'adhoc') {
+        console.log(chalk.yellow('⚠ This is an Ad-Hoc build'));
+        console.log(chalk.gray('  You can still upload it to TestFlight using the "upload" command'));
+        console.log(chalk.gray('  Command: npm run cli -- upload --file <ipa> --bundle-id <id> --type testflight'));
+      } else if (buildType === 'enterprise') {
+        console.log(chalk.yellow('⚠ This is an Enterprise build'));
+        console.log(chalk.gray('  Enterprise builds are typically distributed internally'));
+      } else {
+        console.log(chalk.yellow('⚠ This is a Development build'));
+        console.log(chalk.gray('  Development builds are for testing during development only'));
+      }
+
+      // Show device UDIDs if not too many
+      if (devices.length > 0 && devices.length <= 10) {
+        console.log('\n' + chalk.gray('Authorized Device UDIDs:'));
+        devices.forEach((udid, i) => {
+          console.log(chalk.gray(`  ${i + 1}. ${udid}`));
+        });
+      } else if (devices.length > 10) {
+        console.log('\n' + chalk.gray(`Authorized Devices: ${devices.length} (too many to display)`));
+      }
+
+      console.log('');
+    } catch (error) {
+      spinner.fail(chalk.red('Failed to analyze IPA'));
       console.error(chalk.red('\nError:'), error.message);
       process.exit(1);
     }
