@@ -299,11 +299,25 @@ program
         return teamMatch ? teamMatch[1] : undefined;
       };
 
+      const getTeamName = (): string | undefined => {
+        const teamNameMatch = provisionContent.match(
+          /<key>TeamName<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        return teamNameMatch ? teamNameMatch[1] : undefined;
+      };
+
       const getProfileName = (): string | undefined => {
         const nameMatch = provisionContent.match(
           /<key>Name<\/key>\s*<string>([^<]+)<\/string>/
         );
         return nameMatch ? nameMatch[1] : undefined;
+      };
+
+      const getBundleId = (): string | undefined => {
+        const bundleMatch = provisionContent.match(
+          /<key>application-identifier<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        return bundleMatch ? bundleMatch[1] : undefined;
       };
 
       const determineBuildType = (): 'adhoc' | 'enterprise' | 'development' | 'appstore' => {
@@ -331,13 +345,16 @@ program
       const devices = getProvisionedDevices();
       const expirationDate = getExpirationDate();
       const teamId = getTeamId();
+      const teamName = getTeamName();
       const profileName = getProfileName();
+      const bundleID = getBundleId();
 
       spinner.succeed(chalk.green('IPA analyzed successfully'));
 
       // Display results
       console.log('\n');
       console.log(chalk.bold('Build Information:'));
+      console.log(chalk.cyan('  Build ID:'), bundleID);
       console.log(chalk.cyan('  Build Type:'), buildType.toUpperCase());
       console.log(chalk.cyan('  Authorized Devices:'), devices.length);
       
@@ -359,7 +376,11 @@ program
       if (teamId) {
         console.log(chalk.cyan('  Team ID:'), teamId);
       }
-      
+
+      if(teamName){
+        console.log(chalk.cyan('  Team Name:'), teamName);
+      }
+
       if (profileName) {
         console.log(chalk.cyan('  Profile Name:'), profileName);
       }
