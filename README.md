@@ -144,7 +144,16 @@ npm run cli -- list-apps
 ### 2. Test IPA metadata extraction
 npm run cli -- metadata --file your.ipa
 
-### 3. Test upload
+### 3. List Builds
+npm run cli -- list-builds -b your.bundle.id
+
+### 4. List Build Details
+npm run cli -- list-build-details -b your.bundle.id -bvi build.version.id
+
+### 5. Analyze IPA metadata
+npm run cli -- analyze -f your.bundle.id
+
+### 6. Test upload
 npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight
 
 You're all set! Your tool now works on Windows! 🎊

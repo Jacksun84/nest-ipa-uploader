@@ -83,10 +83,10 @@ export class IpaUploaderService {
 
       // Extract IPA metadata
       const metadata = await this.getIpaMetadata(options.ipaPath);
-      this.logger.log(`IPA Version: ${metadata.version}, Build: ${metadata.buildNumber}`);
+      this.logger.log(`IPA Version: ${metadata.version}, Build: ${metadata.buildNumber}, DisplayName: ${metadata.DisplayName}`);
 
       console.log(`Found app: ${app.attributes.name} (${app.id})`);
-      console.log(`IPA Version: ${metadata.version}, Build: ${metadata.buildNumber}`);
+      console.log(`IPA Version: ${metadata.version}, Build: ${metadata.buildNumber}, DisplayName: ${metadata.DisplayName}`);
 
       // Upload using App Store Connect API (cross-platform)
       await this.uploadUsingAppStoreConnectApi(options, app.id, metadata);
@@ -184,7 +184,7 @@ export class IpaUploaderService {
 
       this.logger.log('✓ IPA uploaded successfully!');
       console.log('✓ IPA uploaded successfully!');
-      
+
     } catch (error) {
       this.logger.error('API upload failed:', error.message);
       console.error('API upload failed:', error.message);
@@ -439,9 +439,11 @@ export class IpaUploaderService {
       }
 
       const plistContent = plistEntry.getData().toString('utf8');
+
       return this.parsePlist(plistContent);
     } catch (error) {
       this.logger.error('Failed to extract IPA metadata', error);
+      console.error('Failed to extract IPA metadata', error);
       throw new Error('Could not read IPA metadata. Ensure the file is a valid IPA.');
     }
   }

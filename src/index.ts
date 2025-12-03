@@ -8,7 +8,9 @@ export {
 export { 
   AppStoreConnectApiService, 
   App, 
-  Build 
+  Build,
+  BuildUpload,
+  BuildUploadRelationship
 } from './services/app-store-connect-api.service';
 export { 
   AppStoreConnectAuthService, 
