@@ -35,7 +35,7 @@ npm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.no
 
 🔍 How It Works (Cross-platform):
 Windows/Mac/Linux<br> 
-✅ App Store Connect API → AWS S3 → Apple
+✅ App Store Connect API → AWS S3 → Apple (WIP)
 
 The upload process:<br>
 Extract IPA metadata (using adm-zip - works on Windows)<br>
