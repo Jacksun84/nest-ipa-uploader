@@ -320,6 +320,20 @@ program
         return bundleMatch ? bundleMatch[1] : undefined;
       };
 
+      const getBuildVersionNumber = (): string | undefined => {
+        const buildNumber = provisionContent.match(
+          /<key>bundle_short_version_string<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        return buildNumber ? buildNumber[1] : undefined;
+      };
+
+      const getBuildVersionCode = (): string | undefined => {
+        const buildCode = provisionContent.match(
+          /<key>CFBundleVersion<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        return buildCode ? buildCode[1] : undefined;
+      };
+
       const determineBuildType = (): 'adhoc' | 'enterprise' | 'development' | 'appstore' => {
         // Check for get-task-allow (development)
         if (provisionContent.includes('<key>get-task-allow</key>')) {
@@ -348,14 +362,18 @@ program
       const teamName = getTeamName();
       const profileName = getProfileName();
       const bundleID = getBundleId();
+      const BuildVersionNumber = getBuildVersionNumber();
+      const BuildVersionCode = getBuildVersionCode();
 
       spinner.succeed(chalk.green('IPA analyzed successfully'));
 
       // Display results
       console.log('\n');
       console.log(chalk.bold('Build Information:'));
-      console.log(chalk.cyan('  Build ID:'), bundleID);
+      console.log(chalk.cyan('  Bundle ID:'), bundleID);
       console.log(chalk.cyan('  Build Type:'), buildType.toUpperCase());
+      console.log(chalk.cyan('  Build Version Number:'), BuildVersionNumber);
+      console.log(chalk.cyan('  Build Version Code:'), BuildVersionCode);
       console.log(chalk.cyan('  Authorized Devices:'), devices.length);
       
       if (expirationDate) {
@@ -630,7 +648,7 @@ program
   .requiredOption('-b, --bundle-id <id>', 'App Store Connect App ID')
   .requiredOption('--short-version <version>', 'CFBundleShortVersionString')
   .requiredOption('--build-version <version>', 'CFBundleVersion')
-  .option('--jwt <token>', 'App Store Connect JWT token')
+  .option('--jwt <token>', 'App Store Connect JWT token') //optional, it will generated if empty
   .action(async (options) => {
     const spinner = ora('Starting multipart upload...').start();
     try {
