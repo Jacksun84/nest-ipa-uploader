@@ -623,6 +623,142 @@ program
     }
   });
 
+program
+  .command('multipart-upload')
+  .description('Upload IPA using App Store Connect multipart upload API')
+  .requiredOption('-f, --file <path>', 'Path to IPA file')
+  .requiredOption('-b, --bundle-id <id>', 'App Store Connect App ID')
+  .requiredOption('--short-version <version>', 'CFBundleShortVersionString')
+  .requiredOption('--build-version <version>', 'CFBundleVersion')
+  .option('--jwt <token>', 'App Store Connect JWT token')
+  .action(async (options) => {
+    const spinner = ora('Starting multipart upload...').start();
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const axios = require('axios');
+      const tmp = require('tmp-promise');
+
+      const config = {
+        issuerId: process.env.APP_STORE_CONNECT_ISSUER_ID,
+        keyId: process.env.APP_STORE_CONNECT_KEY_ID,
+        privateKeyPath: process.env.APP_STORE_CONNECT_PRIVATE_KEY_PATH,
+      };
+
+      const app = await NestFactory.createApplicationContext(
+        IpaUploaderModule.forRoot(config),
+        { logger: false }
+      );
+
+      const authService = app.get(AppStoreConnectAuthService);
+      await authService.initialize();
+
+      if(!options.jwt){
+        options.jwt = authService.generateToken();
+      }
+
+      console.log(chalk.grey(`Token ${options.jwt}`));
+
+      // Validate file
+      if (!fs.existsSync(options.file)) throw new Error('IPA file not found');
+
+      const ipaSize = fs.statSync(options.file).size;
+      const ipaName = path.basename(options.file);
+
+      spinner.text = 'Creating build upload...';
+
+      // Step 1: create build upload
+      const buildUploadResp = await axios.post(
+        'https://api.appstoreconnect.apple.com/v1/buildUploads',
+        {
+          data: {
+            type: 'buildUploads',
+            attributes: {
+              cfBundleShortVersionString: options.shortVersion,
+              cfBundleVersion: options.buildVersion,
+              platform: 'IOS',
+            },
+            relationships: {
+              app: { data: { type: 'apps', id: options.bundleId } },
+            },
+          },
+        },
+        { headers: { Authorization: `Bearer ${options.jwt}` } }
+      );
+
+      const buildUploadId = buildUploadResp.data.data.id;
+      spinner.text = `Build upload ID: ${buildUploadId}`;
+
+      // Step 2: create build upload file
+      const buildUploadFileResp = await axios.post(
+        'https://api.appstoreconnect.apple.com/v1/buildUploadFiles',
+        {
+          data: {
+            type: 'buildUploadFiles',
+            attributes: {
+              fileName: ipaName,
+              fileSize: ipaSize,
+              assetType: 'ASSET',
+              uti: 'com.apple.ipa',
+            },
+            relationships: {
+              buildUpload: { data: { type: 'buildUploads', id: buildUploadId } },
+            },
+          },
+        },
+        { headers: { Authorization: `Bearer ${options.jwt}` } }
+      );
+
+      const uploadFileId = buildUploadFileResp.data.data.id;
+      const uploadOperations = buildUploadFileResp.data.data.attributes.uploadOperations;
+
+      spinner.succeed(`Upload file created: ${uploadFileId}`);
+
+      // Step 3: upload parts
+      const tmpDir = await tmp.dir({ unsafeCleanup: true });
+
+      for (const op of uploadOperations.sort((a, b) => a.partNumber - b.partNumber)) {
+        const slicePath = path.join(tmpDir.path, `part_${op.partNumber}.bin`);
+        const fd = fs.openSync(options.file, 'r');
+        const buffer = Buffer.alloc(op.length);
+        fs.readSync(fd, buffer, 0, op.length, op.offset);
+        fs.writeFileSync(slicePath, buffer);
+        fs.closeSync(fd);
+
+        const headers: Record<string, string> = {};
+        if (op.requestHeaders) {
+          for (const h of op.requestHeaders) headers[h.name] = h.value;
+        }
+
+        spinner.text = `Uploading part ${op.partNumber}...`;
+        const res = await axios.put(op.url, fs.createReadStream(slicePath), {
+          headers,
+          maxBodyLength: Infinity,
+        });
+
+        if (res.status < 200 || res.status >= 300) {
+          throw new Error(`Failed to upload part ${op.partNumber}`);
+        }
+      }
+
+      spinner.succeed('All parts uploaded');
+
+      // Step 4: commit file
+      await axios.patch(
+        `https://api.appstoreconnect.apple.com/v1/buildUploadFiles/${uploadFileId}`,
+        { data: { type: 'buildUploadFiles', id: uploadFileId, attributes: { uploaded: true } } },
+        { headers: { Authorization: `Bearer ${options.jwt}` } }
+      );
+
+      spinner.succeed('Multipart upload committed');
+
+    } catch (err: any) {
+      spinner.fail('Multipart upload failed');
+      console.error(chalk.red(err.message));
+      process.exit(1);
+    }
+  });  
+
 if (process.argv.length < 3) {
   program.help();
 }

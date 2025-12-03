@@ -3,6 +3,7 @@ import { HttpModule } from '@nestjs/axios';
 import { AppStoreConnectAuthService, AppStoreConnectConfig } from './auth/app-store-connect-auth.service';
 import { AppStoreConnectApiService } from './services/app-store-connect-api.service';
 import { IpaUploaderService } from './services/ipa-uploader.service';
+import { CommandModule } from 'nestjs-command';
 
 @Global()
 @Module({})
@@ -10,7 +11,7 @@ export class IpaUploaderModule {
   static forRoot(config: AppStoreConnectConfig): DynamicModule {
     return {
       module: IpaUploaderModule,
-      imports: [HttpModule],
+      imports: [HttpModule, CommandModule],
       providers: [
         {
           provide: 'APP_STORE_CONNECT_CONFIG',
@@ -24,12 +25,12 @@ export class IpaUploaderModule {
           inject: ['APP_STORE_CONNECT_CONFIG'],
         },
         AppStoreConnectApiService,
-        IpaUploaderService,
+        IpaUploaderService
       ],
       exports: [
         AppStoreConnectAuthService,
         AppStoreConnectApiService,
-        IpaUploaderService,
+        IpaUploaderService
       ],
     };
   }

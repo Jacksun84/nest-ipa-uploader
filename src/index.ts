@@ -1,5 +1,5 @@
 export { IpaUploaderModule } from './ipa-uploader.module';
-export { 
+export {
   IpaUploaderService, 
   BuildType, 
   UploadOptions, 
