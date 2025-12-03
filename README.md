@@ -142,7 +142,7 @@ npm run cli -- list-apps
 ![List Apps example](/assets/list-apps.png)
 
 ### 2. Test IPA metadata extraction
-npm run cli -- metadata --file your.ipa
+npm run cli -- metadata --f your.ipa
 
 ### 3. List Builds
 npm run cli -- list-builds -b your.bundle.id
