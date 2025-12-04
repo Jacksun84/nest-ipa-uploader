@@ -646,11 +646,11 @@ program
   .description('Upload IPA using App Store Connect multipart upload API')
   .requiredOption('-f, --file <path>', 'Path to IPA file')
   .requiredOption('-b, --bundle-id <id>', 'App Store Connect App ID')
-  .requiredOption('--short-version <version>', 'CFBundleShortVersionString')
-  .requiredOption('--build-version <version>', 'CFBundleVersion')
-  .option('--jwt <token>', 'App Store Connect JWT token') //optional, it will generated if empty
+  .requiredOption('-sv, --short-version <shortversion>', 'CFBundleShortVersionString')
+  .requiredOption('-bv, --build-version <buildversion>', 'CFBundleVersion')
+  .option('--jwt <token>', 'App Store Connect JWT token')
   .action(async (options) => {
-    const spinner = ora('Starting multipart upload...').start();
+    const spinner = ora('Starting multipart upload...\n').start();
     try {
       const fs = require('fs');
       const path = require('path');
@@ -671,11 +671,10 @@ program
       const authService = app.get(AppStoreConnectAuthService);
       await authService.initialize();
 
+      // generate new token if options.jwt empty
       if(!options.jwt){
         options.jwt = authService.generateToken();
       }
-
-      console.log(chalk.grey(`Token ${options.jwt}`));
 
       // Validate file
       if (!fs.existsSync(options.file)) throw new Error('IPA file not found');
@@ -684,6 +683,11 @@ program
       const ipaName = path.basename(options.file);
 
       spinner.text = 'Creating build upload...';
+
+      console.log(chalk.greenBright(`Creating buildUpload for file: ${ipaName} with size [${ipaSize} MB]`));
+      console.log(chalk.grey(`Bundle Id: ${options.bundleId}`));
+      console.log(chalk.grey(`ShortVersion/Version Number: ${options.shortVersion}`));
+      console.log(chalk.grey(`BuildVersion/Version Code: ${options.bv}`));
 
       // Step 1: create build upload
       const buildUploadResp = await axios.post(
@@ -705,6 +709,8 @@ program
       );
 
       const buildUploadId = buildUploadResp.data.data.id;
+      console.log(chalk.yellowBright(`Apple buildUploadId ${buildUploadId}`));
+
       spinner.text = `Build upload ID: ${buildUploadId}`;
 
       // Step 2: create build upload file
@@ -772,7 +778,9 @@ program
 
     } catch (err: any) {
       spinner.fail('Multipart upload failed');
-      console.error(chalk.red(err.message));
+      if(err.status = '409') console.log(chalk.yellowBright(`Possible conflicts between build versions!` ));
+
+      console.error(chalk.red(`DEBUG: ${err.message} - ${err.code}` ));
       process.exit(1);
     }
   });  
