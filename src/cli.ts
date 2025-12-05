@@ -778,7 +778,7 @@ program
       const uploadFileId = buildUploadFileResp.data.data.id;
       const uploadOperations = buildUploadFileResp.data.data.attributes.uploadOperations;
 
-      spinner.succeed(`Upload file created: ${uploadFileId}\n`);
+      spinner.succeed(chalk.green(`Upload file created: ${uploadFileId}\n`));
 
       // Step 4: upload parts
       console.log(chalk.blueBright(`[STEP 3] Upload parts...\n`));
