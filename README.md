@@ -82,64 +82,64 @@ You'll see progress: "Uploading chunk 1/10... Progress: 10%"
 Large IPA files (100MB+) can take 5-10 minutes
 
 🎉 Success Indicators<br>
-Uploading part 1 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 2 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 3 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 4 with length 5242880...
-Finalizing upload part...
- 200
-...
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 9 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 10 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 11 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 12 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 13 with length 5242880...
-Finalizing upload part...
- 200
-Loop over uploadOperations
-Found requestHeaders from upload operations
-Header name: Content-Type value: application/octet-stream
-Uploading part 14 with length 4974770...
-Finalizing upload part...
- 200
+Uploading part 1 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 2 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 3 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 4 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+...<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 9 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 10 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 11 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 12 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 13 with length 5242880...<br>
+Finalizing upload part...<br>
+ 200<br>
+Loop over uploadOperations<br>
+Found requestHeaders from upload operations<br>
+Header name: Content-Type value: application/octet-stream<br>
+Uploading part 14 with length 4974770...<br>
+Finalizing upload part...<br>
+ 200<br>
 ✔ All parts uploaded<br>
 ✔ Multipart upload committed<br>
 
