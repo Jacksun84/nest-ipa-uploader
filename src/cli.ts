@@ -781,7 +781,7 @@ program
       spinner.succeed(chalk.green(`Upload file created: ${uploadFileId}\n`));
 
       // Step 4: upload parts
-      console.log(chalk.blueBright(`[STEP 3] Upload parts...\n`));
+      console.log(chalk.blueBright(`[STEP 3] Upload file parts...\n`));
 
       const tmpDir = await tmp.dir({ unsafeCleanup: true });
       console.log(chalk.grey(`UnsafeCleanup ${tmpDir}`));
