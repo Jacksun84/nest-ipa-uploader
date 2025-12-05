@@ -646,22 +646,27 @@ program
   .description('Upload IPA using App Store Connect multipart upload API')
   .requiredOption('-f, --file <path>', 'Path to IPA file')
   .requiredOption('-b, --bundle-id <id>', 'App Store Connect App ID')
-  .requiredOption('-sv, --short-version <shortversion>', 'CFBundleShortVersionString')
-  .requiredOption('-bv, --build-version <buildversion>', 'CFBundleVersion')
+  .requiredOption('--short-version <shortversion>', 'CFBundleShortVersionString')
+  .requiredOption('--build-version <buildversion>', 'CFBundleVersion')
   .option('--jwt <token>', 'App Store Connect JWT token')
   .action(async (options) => {
-    const spinner = ora('Starting multipart upload...\n').start();
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const axios = require('axios');
-      const tmp = require('tmp-promise');
 
+    // STEP 1 Get all apps to find the Apple App ID by {options.bundleId}
+
+    const spinner = ora('Fetching apps...').start();
+    let appleAppId:string;
+
+    try {
       const config = {
         issuerId: process.env.APP_STORE_CONNECT_ISSUER_ID,
         keyId: process.env.APP_STORE_CONNECT_KEY_ID,
         privateKeyPath: process.env.APP_STORE_CONNECT_PRIVATE_KEY_PATH,
       };
+
+      if (!config.issuerId || !config.keyId || !config.privateKeyPath) {
+        spinner.fail('Missing credentials');
+        process.exit(1);
+      }
 
       const app = await NestFactory.createApplicationContext(
         IpaUploaderModule.forRoot(config),
@@ -675,6 +680,38 @@ program
       if(!options.jwt){
         options.jwt = authService.generateToken();
       }
+      // spinner.succeed(chalk.gray(`Generated Token: ${authService.generateToken()}\n`));
+
+      const apiService = app.get(AppStoreConnectApiService);
+      const apps = await apiService.getApps();
+
+      spinner.succeed(chalk.green(`Found ${apps.length} apps`));
+
+      console.log('\n');
+      apps.forEach((appItem, index) => {
+        console.log(chalk.bold(`${index + 1}. ${appItem.attributes.name}`));
+        console.log(chalk.gray('   Bundle ID:'), appItem.attributes.bundleId);
+        console.log(chalk.gray('   App ID:'), appItem.id);
+        console.log('');
+        if(appItem.attributes.bundleId == options.bundleId){
+          appleAppId = appItem.id;
+        }
+      });
+
+      if(!appleAppId) {
+        spinner.fail(`App ID not found for bundleId ${options.bundleId}`);
+        console.error(chalk.red(`DEBUG: App ID not found for bundleId ${options.bundleId}` ));
+        process.exit(1);
+      }
+      spinner.succeed(chalk.green(`Found App ID ${appleAppId} for bundle ${options.bundleId} `));
+
+      //const spinner = ora('Starting multipart upload...\n').start();
+      spinner.text = 'Starting multipart upload...\n)';
+
+      const fs = require('fs');
+      const path = require('path');
+      const axios = require('axios');
+      const tmp = require('tmp-promise');
 
       // Validate file
       if (!fs.existsSync(options.file)) throw new Error('IPA file not found');
@@ -684,12 +721,12 @@ program
 
       spinner.text = 'Creating build upload...';
 
-      console.log(chalk.greenBright(`Creating buildUpload for file: ${ipaName} with size [${ipaSize} MB]`));
+      console.log(chalk.grey(`Creating buildUpload for file: ${ipaName} with size [${ipaSize} MB]`));
       console.log(chalk.grey(`Bundle Id: ${options.bundleId}`));
       console.log(chalk.grey(`ShortVersion/Version Number: ${options.shortVersion}`));
-      console.log(chalk.grey(`BuildVersion/Version Code: ${options.bv}`));
+      console.log(chalk.grey(`BuildVersion/Version Code: ${options.buildVersion}`));
 
-      // Step 1: create build upload
+      // Step 2: create build upload
       const buildUploadResp = await axios.post(
         'https://api.appstoreconnect.apple.com/v1/buildUploads',
         {
@@ -701,7 +738,7 @@ program
               platform: 'IOS',
             },
             relationships: {
-              app: { data: { type: 'apps', id: options.bundleId } },
+              app: { data: { type: 'apps', id: appleAppId } },
             },
           },
         },
