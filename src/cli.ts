@@ -786,42 +786,6 @@ program
       const tmpDir = await tmp.dir({ unsafeCleanup: true });
       console.log(chalk.grey(`UnsafeCleanup ${tmpDir}`));
 
-      /*
-      for (const op of uploadOperations.sort((a, b) => a.partNumber - b.partNumber)) {
-        const slicePath = path.join(tmpDir.path, `part_${op.partNumber}.bin`);
-        const fd = fs.openSync(options.file, 'r');
-        const buffer = Buffer.alloc(op.length);
-        fs.readSync(fd, buffer, 0, op.length, op.offset);
-        fs.writeFileSync(slicePath, buffer);
-        fs.closeSync(fd);
-
-        console.log(chalk.grey(`Loop over uploadOperations`));
-
-        const headers: Record<string, string> = {};
-        if (op.requestHeaders) {
-          console.log(chalk.grey(`Found requestHeaders from upload operations`));
-          for (const h of op.requestHeaders) {
-            headers[h.name] = h.value;
-            console.log(chalk.grey(`Header name: ${h.name} value: ${h.value}`));
-          } 
-        }
-
-        console.log(chalk.grey(`Uploading part ${op.partNumber}...`));
-
-        spinner.text = `Uploading part ${op.partNumber}...`;
-        const res = await axios.put(op.url, fs.createReadStream(slicePath), {
-          headers,
-          maxBodyLength: Infinity,
-        });
-
-        console.log(chalk.grey(`Finalizing upload part...\n ${res}`));
-
-        if (res.status < 200 || res.status >= 300) {
-          throw new Error(`Failed to upload part ${op.partNumber}`);
-        }
-      }
-      */
-
       for (const op of uploadOperations.sort((a, b) => a.partNumber - b.partNumber)) {
           // 1. Read the specific part directly into a buffer
           const fd = fs.openSync(options.file, 'r');
