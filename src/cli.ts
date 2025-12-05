@@ -798,6 +798,7 @@ program
 
         const headers: Record<string, string> = {};
         if (op.requestHeaders) {
+          console.log(chalk.grey(`Found requestHeaders from upload operations`));
           for (const h of op.requestHeaders) {
             headers[h.name] = h.value;
             console.log(chalk.grey(`Header name: ${h.name} value: ${h.value}`));
@@ -832,7 +833,8 @@ program
 
     } catch (err: any) {
       spinner.fail('Multipart upload failed');
-      if(err.status = '409') console.log(chalk.yellowBright(`Possible conflicts between build versions!` ));
+      
+      console.log(chalk.yellowBright(`WARN: status: ${err.status} message: ${err.message} code: ${err.code} title: ${err.title} detail: ${err.detail}`));
 
       console.error(chalk.red(`DEBUG: ${err.message} - ${err.code}` ));
       process.exit(1);
