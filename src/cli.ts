@@ -652,6 +652,7 @@ program
   .action(async (options) => {
 
     // STEP 1 Get all apps to find the Apple App ID by {options.bundleId}
+    console.log(chalk.blueBright(`[STEP 1] List account apps...\n`));
 
     const spinner = ora('Fetching apps...').start();
     let appleAppId:string;
@@ -700,10 +701,11 @@ program
 
       if(!appleAppId) {
         spinner.fail(`App ID not found for bundleId ${options.bundleId}`);
-        console.error(chalk.red(`DEBUG: App ID not found for bundleId ${options.bundleId}` ));
+        console.error(chalk.red(`DEBUG: App ID not found for bundle Id ${options.bundleId}`));
+        console.error(chalk.yellow(`WARNING: Are you sure that the bundle is correct?`));
         process.exit(1);
       }
-      spinner.succeed(chalk.green(`Found App ID ${appleAppId} for bundle ${options.bundleId} `));
+      spinner.succeed(chalk.green(`Found App ID ${appleAppId} for bundle ${options.bundleId}\n`));
 
       //const spinner = ora('Starting multipart upload...\n').start();
       spinner.text = 'Starting multipart upload...\n)';
@@ -721,7 +723,10 @@ program
 
       spinner.text = 'Creating build upload...';
 
-      console.log(chalk.grey(`Creating buildUpload for file: ${ipaName} with size [${ipaSize} MB]`));
+      console.log(chalk.blueBright(`[STEP 2] Creating build upload...\n`));
+      console.log(chalk.grey(`Creating buildUpload for App ID: ${appleAppId}`));
+      console.log(chalk.grey(`File name: ${ipaName}`));
+      console.log(chalk.grey(`File Size: ${ipaSize} MB`));
       console.log(chalk.grey(`Bundle Id: ${options.bundleId}`));
       console.log(chalk.grey(`ShortVersion/Version Number: ${options.shortVersion}`));
       console.log(chalk.grey(`BuildVersion/Version Code: ${options.buildVersion}`));
@@ -746,11 +751,11 @@ program
       );
 
       const buildUploadId = buildUploadResp.data.data.id;
-      console.log(chalk.yellowBright(`Apple buildUploadId ${buildUploadId}`));
+      console.log(chalk.grey(`Apple buildUploadId ${buildUploadId}`));
 
       spinner.text = `Build upload ID: ${buildUploadId}`;
 
-      // Step 2: create build upload file
+      // Step 3: create build upload file
       const buildUploadFileResp = await axios.post(
         'https://api.appstoreconnect.apple.com/v1/buildUploadFiles',
         {
@@ -773,10 +778,13 @@ program
       const uploadFileId = buildUploadFileResp.data.data.id;
       const uploadOperations = buildUploadFileResp.data.data.attributes.uploadOperations;
 
-      spinner.succeed(`Upload file created: ${uploadFileId}`);
+      spinner.succeed(`Upload file created: ${uploadFileId}\n`);
 
-      // Step 3: upload parts
+      // Step 4: upload parts
+      console.log(chalk.blueBright(`[STEP 3] Upload parts...\n`));
+
       const tmpDir = await tmp.dir({ unsafeCleanup: true });
+      console.log(chalk.grey(`UnsafeCleanup ${tmpDir}`));
 
       for (const op of uploadOperations.sort((a, b) => a.partNumber - b.partNumber)) {
         const slicePath = path.join(tmpDir.path, `part_${op.partNumber}.bin`);
@@ -785,6 +793,8 @@ program
         fs.readSync(fd, buffer, 0, op.length, op.offset);
         fs.writeFileSync(slicePath, buffer);
         fs.closeSync(fd);
+
+        console.log(chalk.grey(`Loop over uploadOperations`));
 
         const headers: Record<string, string> = {};
         if (op.requestHeaders) {
@@ -797,6 +807,8 @@ program
           maxBodyLength: Infinity,
         });
 
+        console.log(chalk.grey(`Finalizing upload part...\n ${res}`));
+
         if (res.status < 200 || res.status >= 300) {
           throw new Error(`Failed to upload part ${op.partNumber}`);
         }
@@ -804,7 +816,7 @@ program
 
       spinner.succeed('All parts uploaded');
 
-      // Step 4: commit file
+      // Step 5: commit file
       await axios.patch(
         `https://api.appstoreconnect.apple.com/v1/buildUploadFiles/${uploadFileId}`,
         { data: { type: 'buildUploadFiles', id: uploadFileId, attributes: { uploaded: true } } },
