@@ -786,6 +786,7 @@ program
       const tmpDir = await tmp.dir({ unsafeCleanup: true });
       console.log(chalk.grey(`UnsafeCleanup ${tmpDir}`));
 
+      /*
       for (const op of uploadOperations.sort((a, b) => a.partNumber - b.partNumber)) {
         const slicePath = path.join(tmpDir.path, `part_${op.partNumber}.bin`);
         const fd = fs.openSync(options.file, 'r');
@@ -819,8 +820,39 @@ program
           throw new Error(`Failed to upload part ${op.partNumber}`);
         }
       }
+      */
 
-      spinner.succeed('All parts uploaded');
+      for (const op of uploadOperations.sort((a, b) => a.partNumber - b.partNumber)) {
+          // 1. Read the specific part directly into a buffer
+          const fd = fs.openSync(options.file, 'r');
+          const buffer = Buffer.alloc(op.length);
+          fs.readSync(fd, buffer, 0, op.length, op.offset);
+          fs.closeSync(fd);
+          console.log(chalk.grey(`Loop over uploadOperations`));
+          const headers: Record<string, string> = {};
+          if (op.requestHeaders) {
+                console.log(chalk.grey(`Found requestHeaders from upload operations`));
+                for (const h of op.requestHeaders) {
+                    headers[h.name] = h.value;
+                    console.log(chalk.grey(`Header name: ${h.name} value: ${h.value}`));
+                }
+          }
+          // 2. *** CRITICAL FIX: Add Content-Length header ***
+          headers['Content-Length'] = String(op.length);
+          console.log(chalk.grey(`Uploading part ${op.partNumber} with length ${op.length}...`));
+          spinner.text = `Uploading part ${op.partNumber}...`;
+          // 3. Send the buffer directly instead of a file stream
+          const res = await axios.put(op.url, buffer, {
+                headers,
+                maxBodyLength: Infinity,
+          });
+          console.log(chalk.grey(`Finalizing upload part...\n ${res.status}`));
+          if (res.status < 200 || res.status >= 300) {
+                throw new Error(`Failed to upload part ${op.partNumber} with status ${res.status}`);
+          }
+      }
+
+      spinner.succeed(chalk.green(`All parts uploaded ${uploadFileId}\n`));
 
       // Step 5: commit file
       await axios.patch(
@@ -829,13 +861,11 @@ program
         { headers: { Authorization: `Bearer ${options.jwt}` } }
       );
 
-      spinner.succeed('Multipart upload committed');
+      spinner.succeed(chalk.green(`Multipart upload committed: ${uploadFileId}\n`));
 
     } catch (err: any) {
-      spinner.fail('Multipart upload failed');
-      
+      spinner.fail(chalk.yellowBright('Multipart upload failed'));  
       console.log(chalk.yellowBright(`WARN: status: ${err.status} message: ${err.message} code: ${err.code} title: ${err.title} detail: ${err.detail}`));
-
       console.error(chalk.red(`DEBUG: ${err.message} - ${err.code}` ));
       process.exit(1);
     }
