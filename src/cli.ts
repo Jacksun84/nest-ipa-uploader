@@ -798,8 +798,13 @@ program
 
         const headers: Record<string, string> = {};
         if (op.requestHeaders) {
-          for (const h of op.requestHeaders) headers[h.name] = h.value;
+          for (const h of op.requestHeaders) {
+            headers[h.name] = h.value;
+            console.log(chalk.grey(`Header name: ${h.name} value: ${h.value}`));
+          } 
         }
+
+        console.log(chalk.grey(`Uploading part ${op.partNumber}...`));
 
         spinner.text = `Uploading part ${op.partNumber}...`;
         const res = await axios.put(op.url, fs.createReadStream(slicePath), {
