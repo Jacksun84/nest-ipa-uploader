@@ -29,19 +29,17 @@ APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 bash<br>
 npm run build
 
-4. Test the Upload
+4. Upload ipa file
 bash<br>
-npm run cli -- upload --file artifacts/Sapphire_Care_demo.ipa --bundle-id com.nordicplatforms.demo.SapphireCare --type testflight
+npm run cli -- multipart-upload -f your.ipa -b bundle-id --short-version build.version.number --build-version build.version.code
 
 🔍 How It Works (Cross-platform):
 Windows/Mac/Linux<br> 
-✅ App Store Connect API → AWS S3 → Apple (WIP)
 
 The upload process:<br>
 Extract IPA metadata (using adm-zip - works on Windows)<br>
 Create build record in App Store Connect<br>
-Create upload session and get AWS S3 URLs<br>
-Upload IPA chunks directly to Apple's AWS storage<br>
+Create build upload multi part in App Store Connect<br>
 Commit upload to finalize<br>
 
 Commands to Run:
@@ -53,7 +51,7 @@ npm install
 npm run build
 
 # 3. Test
-npm run cli -- upload --file path/to/your.ipa --bundle-id your.bundle.id --type testflight
+npm run cli -- multipart-upload -f your.ipa -b bundle-id --short-version build.version.number --build-version build.version.code
 
 
 🐛 Troubleshooting
@@ -79,36 +77,72 @@ Test: npm run cli -- metadata --file your.ipa
 Upload is Slow
 This is normal! The upload happens in chunks:
 
-Each chunk is uploaded separately to AWS S3
+Each chunk is uploaded separately to Apple Store Connect
 You'll see progress: "Uploading chunk 1/10... Progress: 10%"
 Large IPA files (100MB+) can take 5-10 minutes
 
 🎉 Success Indicators<br>
-When upload succeeds, you'll see:<br>
-✔ Initializing...<br>
-✔ Starting upload...<br>
-  Step 1/5: Calculating file checksum...<br>
-  MD5: abc123...<br>
-  Step 2/5: Creating build record...<br>
-  Step 3/5: Creating upload session...<br>
-  Step 4/5: Uploading file to Apple servers...<br>
-  Uploading chunk 1/5...<br>
-  Progress: 20.0%<br>
-  Uploading chunk 2/5...<br>
-  Progress: 40.0%<br>
-  ...<br>
-  Step 5/5: Finalizing upload...<br>
-  ✓ IPA uploaded successfully!<br>
-✔ Upload completed successfully!<br>
+Uploading part 1 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 2 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 3 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 4 with length 5242880...
+Finalizing upload part...
+ 200
+...
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 9 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 10 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 11 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 12 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 13 with length 5242880...
+Finalizing upload part...
+ 200
+Loop over uploadOperations
+Found requestHeaders from upload operations
+Header name: Content-Type value: application/octet-stream
+Uploading part 14 with length 4974770...
+Finalizing upload part...
+ 200
+✔ All parts uploaded<br>
+✔ Multipart upload committed<br>
 
-  Build ID: abc-123-def<br>
-  Version: 1.0.0<br>
-  Processing State: PROCESSING<br>
-
-🚀 Advanced Usage - Upload Without Waiting<br>
-Skip the build processing check (faster):<br>
-bash<br>
-npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --skip-wait
 
 #Add to Beta Group Automatically
 bash
@@ -117,8 +151,6 @@ npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
 ![List Tests Groups](/assets/list-beta-groups.png)
 
-## Then upload with beta group
-npm run cli -- upload --file your.ipa --bundle-id your.bundle.id --type testflight --beta-group YOUR_BETA_GROUP_ID<br>
 📝 API Key Setup Reminder<br>
 If you haven't set up your App Store Connect API key yet:<br>
 

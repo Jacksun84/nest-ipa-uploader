@@ -18,6 +18,7 @@ program
   .description('CLI tool for uploading IPA files to Apple App Store Connect')
   .version('1.0.0');
 
+  /*
 program
   .command('upload')
   .description('Upload an IPA file to App Store Connect')
@@ -95,6 +96,7 @@ program
       process.exit(1);
     }
   });
+*/
 
 program
   .command('list-apps')
