@@ -85,58 +85,30 @@ Large IPA files (100MB+) can take 5-10 minutes
 Uploading part 1 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 2 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 3 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 4 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-...<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 9 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 10 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 11 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 12 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 13 with length 5242880...<br>
 Finalizing upload part...<br>
  200<br>
-Loop over uploadOperations<br>
-Found requestHeaders from upload operations<br>
-Header name: Content-Type value: application/octet-stream<br>
 Uploading part 14 with length 4974770...<br>
 Finalizing upload part...<br>
  200<br>

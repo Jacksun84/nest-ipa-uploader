@@ -794,13 +794,10 @@ program
           const buffer = Buffer.alloc(op.length);
           fs.readSync(fd, buffer, 0, op.length, op.offset);
           fs.closeSync(fd);
-          console.log(chalk.grey(`Loop over uploadOperations`));
           const headers: Record<string, string> = {};
           if (op.requestHeaders) {
-                console.log(chalk.grey(`Found requestHeaders from upload operations`));
                 for (const h of op.requestHeaders) {
                     headers[h.name] = h.value;
-                    console.log(chalk.grey(`Header name: ${h.name} value: ${h.value}`));
                 }
           }
           // 2. *** CRITICAL FIX: Add Content-Length header ***
