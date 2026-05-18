@@ -11,14 +11,14 @@ node -v<br>
 npm install
 
 2. Create your .env File using the example .env.example
-<br>bash<br>
+<br>bash
 APP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx<br>
 APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX<br>
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8<br>
 
-<br>bash<br>
+<br>
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
-<br>bash<br>
+<br>
 **Good**
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:/Users/YourName/keys/AuthKey_XXXXXXXXXX.p8
 **or**
