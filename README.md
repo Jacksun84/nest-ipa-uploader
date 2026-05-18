@@ -27,11 +27,11 @@ APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 
 3. Rebuild the Project
-bash<br>
+<br>bash
 npm run build
 
 4. Upload ipa file
-bash<br>
+<br>bash
 npm run cli -- multipart-upload -f your.ipa -b bundle-id --short-version build.version.number --build-version build.version.code
 
 🔍 How It Works (Cross-platform):
