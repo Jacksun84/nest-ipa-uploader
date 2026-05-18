@@ -16,6 +16,7 @@ APP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx<br>
 APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX<br>
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\path\to\AuthKey_XXXXXXXXXX.p8<br>
 
+bash<br>
 ⚠️ Important for Windows: Use forward slashes or double backslashes in paths:
 bash
 **Good**
