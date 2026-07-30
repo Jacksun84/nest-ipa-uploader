@@ -1,3 +1,6 @@
+#2026/07/30
+ - Analyze IPA file improvement to successfully retrieve the build versions (bundle_short_version_string & CFBundleVersion from config.xml file)
+
 Windows Setup Guide - Cross-Platform IPA Upload<br>
 
 🎯 Integrations?<br>
