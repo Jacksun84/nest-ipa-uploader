@@ -9,13 +9,13 @@
 The Tool uses the App Store Connect Upload API which works on Windows, Linux, and macOS without needing xcrun, Xcode, or any Apple-specific tools!<br>
 
 ⚡ Quick Setup
-1. Install dependecies
+# 1. Install dependecies
 Nodejs is required, check the version of node, should work with version v24.4.1<br>
 bash<br>
 node -v<br>
 npm install
 
-2. Create your .env File using the example .env.example
+# 2. Create your .env File using the example .env.example
 <br>bash<br>
 APP_STORE_CONNECT_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx<br>
 APP_STORE_CONNECT_KEY_ID=XXXXXXXXXX<br>
@@ -31,11 +31,11 @@ APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\\Users\\YourName\\keys\\AuthKey_XXXXXXXXXX
 **Bad**
 APP_STORE_CONNECT_PRIVATE_KEY_PATH=C:\Users\YourName\keys\AuthKey_XXXXXXXXXX.p8
 
-3. Rebuild the Project
+# 3. Rebuild the Project
 <br>bash
 npm run build
 
-4. Upload ipa file
+# 4. Upload ipa file
 <br>bash
 npm run cli -- multipart-upload -f your.ipa -b bundle-id --short-version build.version.number --build-version build.version.code
 
@@ -47,8 +47,9 @@ Extract IPA metadata (using adm-zip - works on Windows)<br>
 Create build record in App Store Connect<br>
 Create build upload multi part in App Store Connect<br>
 Commit upload to finalize<br>
+<br>
 
-Commands to Run:
+Examples of commands|tasks to run:
 bash
 # 1. Install new dependency
 npm install
