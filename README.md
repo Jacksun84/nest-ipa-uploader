@@ -1,9 +1,9 @@
-Release Notes<br>
+### Release Notes<br>
 <br>
 20260730 - Analyze IPA file improvement to successfully retrieve the build versions (bundle_short_version_string & CFBundleVersion from config.xml file)<br>
 
 
-Windows Setup Guide - Cross-Platform IPA Upload<br>
+### Windows Setup Guide - Cross-Platform IPA Upload<br>
 
 🎯 Integrations?<br>
 The Tool uses the App Store Connect Upload API which works on Windows, Linux, and macOS without needing xcrun, Xcode, or any Apple-specific tools!<br>
