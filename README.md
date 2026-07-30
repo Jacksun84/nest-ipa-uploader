@@ -49,7 +49,7 @@ Create build upload multi part in App Store Connect<br>
 Commit upload to finalize<br>
 <br>
 
-Examples of commands|tasks to run:
+How to install and use:
 bash
 # 1. Install new dependency
 npm install
@@ -59,7 +59,6 @@ npm run build
 
 # 3. Test
 npm run cli -- multipart-upload -f your.ipa -b bundle-id --short-version build.version.number --build-version build.version.code
-
 
 🐛 Troubleshooting
 Error: "Failed to create build"
@@ -125,7 +124,7 @@ Finalizing upload part...<br>
 
 #Add to Beta Group Automatically
 bash
-## First, get your beta group ID
+### 0. First, get your beta group ID
 npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
 ![List Tests Groups](/assets/list-beta-groups.png)
