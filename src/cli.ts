@@ -250,6 +250,7 @@ program
     }
   });
 
+/*  
 program
   .command('analyze')
   .description('Analyze IPA build type (App Store, Ad-Hoc, Enterprise, Development)')
@@ -440,9 +441,10 @@ program
       process.exit(1);
     }
   });
+*/
 
-  program
-  .command('metadata')
+program
+  .command('analyze')
   .description('Analyze IPA build type (App Store, Ad-Hoc, Enterprise, Development)')
   .requiredOption('-f, --file <path>', 'Path to IPA file')
   .action(async (options) => {
@@ -467,7 +469,7 @@ program
 
       const provisionContent = provisionEntry.getData().toString('utf8');
 
-      // Parse provisioning profile - all helper functions inline
+      // Parse provisioning profile - helper functions inline
       const getProvisionedDevices = (): string[] => {
         const devicesMatch = provisionContent.match(
           /<key>ProvisionedDevices<\/key>\s*<array>([\s\S]*?)<\/array>/
@@ -492,6 +494,13 @@ program
         return teamMatch ? teamMatch[1] : undefined;
       };
 
+      const getTeamName = (): string | undefined => {
+        const teamNameMatch = provisionContent.match(
+          /<key>TeamName<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        return teamNameMatch ? teamNameMatch[1] : undefined;
+      };
+
       const getProfileName = (): string | undefined => {
         const nameMatch = provisionContent.match(
           /<key>Name<\/key>\s*<string>([^<]+)<\/string>/
@@ -499,23 +508,82 @@ program
         return nameMatch ? nameMatch[1] : undefined;
       };
 
+      const getBundleId = (): string | undefined => {
+        const bundleMatch = provisionContent.match(
+          /<key>application-identifier<\/key>\s*<string>([^<]+)<\/string>/
+        );
+        if (!bundleMatch) return undefined;
+        // Strip out App ID Prefix / Team ID (e.g., "4XFW62VLXP.kw.gov..." -> "kw.gov...")
+        const fullId = bundleMatch[1];
+        return fullId.includes('.') ? fullId.split('.').slice(1).join('.') : fullId;
+      };
+
+      // --- EXTRACT BUILD VERSION INFO FROM CONFIG.XML / INFO.PLIST ---
+      const getConfigVersionInfo = (): { versionNumber?: string; versionCode?: string } => {
+        // Look for config.xml anywhere inside Payload/*.app/
+        const configEntry = entries.find((entry: any) =>
+          entry.entryName.match(/Payload\/[^\/]+\.app\/(?:www\/)?config\.xml$/i)
+        );
+
+        if (configEntry) {
+          const configContent = configEntry.getData().toString('utf8');
+
+          // Extract version="2.0.10"
+          const versionMatch = configContent.match(/<widget[\s\S]*?\bversion="([^"]+)"/i);
+          // Extract ios-CFBundleVersion="44" (or fallback to android-versionCode if missing)
+          const versionCodeMatch =
+            configContent.match(/<widget[\s\S]*?\bios-CFBundleVersion="([^"]+)"/i) ||
+            configContent.match(/<widget[\s\S]*?\bandroid-versionCode="([^"]+)"/i);
+
+          return {
+            versionNumber: versionMatch ? versionMatch[1] : undefined,
+            versionCode: versionCodeMatch ? versionCodeMatch[1] : undefined,
+          };
+        }
+
+        // Fallback to Info.plist inside Payload/*.app/
+        const plistEntry = entries.find((entry: any) =>
+          entry.entryName.match(/Payload\/[^\/]+\.app\/Info\.plist$/i)
+        );
+
+        if (plistEntry) {
+          const plistContent = plistEntry.getData().toString('utf8');
+          const versionNumber = plistContent.match(
+            /<key>CFBundleShortVersionString<\/key>\s*<string>([^<]+)<\/string>/
+          );
+          const versionCode = plistContent.match(
+            /<key>CFBundleVersion<\/key>\s*<string>([^<]+)<\/string>/
+          );
+
+          return {
+            versionNumber: versionNumber ? versionNumber[1] : undefined,
+            versionCode: versionCode ? versionCode[1] : undefined,
+          };
+        }
+
+        return {};
+      };
+
       const determineBuildType = (): 'adhoc' | 'enterprise' | 'development' | 'appstore' => {
-        // Check for get-task-allow (development)
-        if (provisionContent.includes('<key>get-task-allow</key>')) {
+        // 1. Check if get-task-allow is explicitly set to <true/> (Development build)
+        const isDevelopment = /<key>get-task-allow<\/key>\s*<true\/>/i.test(provisionContent);
+        if (isDevelopment) {
           return 'development';
         }
 
-        // Check for provisioned devices (ad-hoc)
+        // 2. Check for ProvisionedDevices array (Ad-Hoc build)
         const devices = getProvisionedDevices();
         if (devices.length > 0) {
           return 'adhoc';
         }
 
-        // Check for enterprise (ProvisionsAllDevices)
-        if (provisionContent.includes('<key>ProvisionsAllDevices</key>')) {
+        // 3. Check for Enterprise distribution flag (In-House / Enterprise)
+        const isEnterprise = /<key>ProvisionsAllDevices<\/key>\s*<true\/>/i.test(provisionContent);
+        if (isEnterprise) {
           return 'enterprise';
         }
 
+        // 4. If get-task-allow is false, no provisioned devices, and not enterprise -> App Store / TestFlight
         return 'appstore';
       };
 
@@ -524,14 +592,22 @@ program
       const devices = getProvisionedDevices();
       const expirationDate = getExpirationDate();
       const teamId = getTeamId();
+      const teamName = getTeamName();
       const profileName = getProfileName();
+      const bundleID = getBundleId();
+      
+      // Get version info from config.xml / plist
+      const { versionNumber: BuildVersionNumber, versionCode: BuildVersionCode } = getConfigVersionInfo();
 
       spinner.succeed(chalk.green('IPA analyzed successfully'));
 
       // Display results
       console.log('\n');
       console.log(chalk.bold('Build Information:'));
+      console.log(chalk.cyan('  Bundle ID:'), bundleID);
       console.log(chalk.cyan('  Build Type:'), buildType.toUpperCase());
+      console.log(chalk.cyan('  Build Version Number:'), BuildVersionNumber ?? 'N/A');
+      console.log(chalk.cyan('  Build Version Code:'), BuildVersionCode ?? 'N/A');
       console.log(chalk.cyan('  Authorized Devices:'), devices.length);
       
       if (expirationDate) {
@@ -552,7 +628,11 @@ program
       if (teamId) {
         console.log(chalk.cyan('  Team ID:'), teamId);
       }
-      
+
+      if (teamName) {
+        console.log(chalk.cyan('  Team Name:'), teamName);
+      }
+
       if (profileName) {
         console.log(chalk.cyan('  Profile Name:'), profileName);
       }
@@ -561,12 +641,12 @@ program
 
       // Provide recommendations based on build type
       if (buildType === 'appstore') {
-        console.log(chalk.green('✓ This is an App Store build - use the "upload" command'));
-        console.log(chalk.gray('  Command: npm run cli -- upload --file <ipa> --bundle-id <id> --type testflight'));
+        console.log(chalk.green('✓ This is an App Store build - use the "upload" command'));        
+        console.log(chalk.gray('  Command: npm run cli -- multipart-upload -f <ipa> -b <id> --short-version <CFBundleShortVersionString> --build-version <CFBundleVersion>'));
       } else if (buildType === 'adhoc') {
         console.log(chalk.yellow('⚠ This is an Ad-Hoc build'));
-        console.log(chalk.gray('  You can still upload it to TestFlight using the "upload" command'));
-        console.log(chalk.gray('  Command: npm run cli -- upload --file <ipa> --bundle-id <id> --type testflight'));
+        console.log(chalk.gray('  You can still upload it to TestFlight using the "upload" command'));        
+        console.log(chalk.gray('  Command: npm run cli -- multipart-upload -f <ipa> -b <id> --short-version <CFBundleShortVersionString> --build-version <CFBundleVersion>'));
       } else if (buildType === 'enterprise') {
         console.log(chalk.yellow('⚠ This is an Enterprise build'));
         console.log(chalk.gray('  Enterprise builds are typically distributed internally'));
