@@ -122,9 +122,8 @@ Finalizing upload part...<br>
 ✔ Multipart upload committed<br>
 
 
-#Add to Beta Group Automatically
+### 0. Get your beta group ID
 bash
-### 0. First, get your beta group ID
 npm run cli -- list-beta-groups --bundle-id your.bundle.id
 
 ![List Tests Groups](/assets/list-beta-groups.png)
@@ -143,6 +142,8 @@ Copy the Key ID and Issuer ID<br>
 
 Put the .p8 file somewhere safe on your Windows machine and update your .env file with the correct path.<br>
 ✅ Verification<br>
+
+
 Test that everything works:<br>
 bash
 
