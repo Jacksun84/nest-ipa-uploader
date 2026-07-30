@@ -1,4 +1,5 @@
 Release Notes<br>
+<br>
 20260730 - Analyze IPA file improvement to successfully retrieve the build versions (bundle_short_version_string & CFBundleVersion from config.xml file)<br>
 
 
